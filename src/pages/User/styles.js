@@ -77,8 +77,7 @@ export const Author = styled.Text`
   margin-top: 2px;
 `;
 
-export const Loader = styled.ActivityIndicator.attrs({
-  color: '#333',
-})`
-  margin-top: 20px;
+export const EmptyList = styled.Text`
+  text-align: center;
+  color: #333;
 `;
