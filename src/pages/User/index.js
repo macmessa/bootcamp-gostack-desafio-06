@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { ActivityIndicator } from 'react-native';
 import PropTypes from 'prop-types';
 import parse from 'parse-link-header';
 import api from '../../services/api';
@@ -16,10 +15,12 @@ import {
   Info,
   Title,
   Author,
+  Loader,
   EmptyList,
 } from './styles';
 
 export default class User extends Component {
+  // #region Properties and state
   static navigationOptions = ({ navigation }) => ({
     title: navigation.getParam('user').name,
   });
@@ -27,6 +28,7 @@ export default class User extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
       getParam: PropTypes.func,
+      navigate: PropTypes.func,
     }).isRequired,
   };
 
@@ -37,7 +39,9 @@ export default class User extends Component {
     page: 1,
     lastPage: false,
   };
+  // #endregion
 
+  // #region Methods
   async componentDidMount() {
     this.load();
   }
@@ -83,6 +87,12 @@ export default class User extends Component {
     this.setState({ refreshing: true }, this.load);
   };
 
+  handleNavigate = repository => {
+    const { navigation } = this.props;
+    navigation.navigate('Repository', { repository });
+  };
+  // #endregion
+
   render() {
     const { stars, loading, refreshing, lastPage } = this.state;
     const { navigation } = this.props;
@@ -101,16 +111,14 @@ export default class User extends Component {
           keyExtractor={star => String(star.id)}
           onEndReachedThreshold={0.2} // Set end reach limit to trigger action
           onEndReached={!lastPage && this.loadMore} // Loads more items if not the last page
-          ListFooterComponent={
-            loading && <ActivityIndicator size="large" color="#7159c1" />
-          }
+          ListFooterComponent={loading && <Loader />}
           ListEmptyComponent={
             !loading && <EmptyList>Nenhum repositório favorito</EmptyList>
           }
           refreshing={refreshing}
           onRefresh={this.refreshList}
           renderItem={({ item }) => (
-            <Starred>
+            <Starred onPress={() => this.handleNavigate(item)}>
               <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
               <Info>
                 <Title>{item.name}</Title>
